@@ -25,3 +25,4 @@ Manifest.toml
 
 #testfile
 .TXT
+.DS_Store
