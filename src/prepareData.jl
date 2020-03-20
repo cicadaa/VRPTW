@@ -42,4 +42,3 @@ end
 
 V, Q, customers, coord, demand, time_window = readInstance("C1_2_1 .TXT")
 dim, dist = getDistanceMatrix(coord)
-# println(typeof(dist))
