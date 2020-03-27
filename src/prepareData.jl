@@ -1,11 +1,15 @@
 
-function readInstance(filename)
+function read_instance(filename)
     file = open(filename)
+
     name = readline(file)
+    # println(name)
     readline(file);readline(file);readline(file)
 
-    Vehicle = parse.(Int32,split(readline(file)))
-    V, Q = Vehicle[1], Vehicle[2] #V no. of vehicle, Q capacity of vehicle
+    vehicle = parse.(Int32,split(readline(file)))
+    # println(vehicle)
+    vehicle_num, capacity = vehicle[1], vehicle[2] #V no. of vehicle, Q capacity of vehicle
+
     readline(file);readline(file);readline(file);readline(file);
 
     coord = []
@@ -24,21 +28,20 @@ function readInstance(filename)
         push!(time_window, data[5:7])
     end
     close(file)
-    return V, Q, customers, coord, demand, time_window
+    return vehicle_num, capacity, customers, coord, demand, time_window
 end
 
-function getDistanceMatrix(coord)
-    dim = length(coord)
-    dist = zeros(Int32,dim,dim)
+function get_distance_matrix(coord)
+    dim = size(coord)[1]
+    dist = zeros(Float32,dim,dim)
+    # println(dim)
     for i in 1:dim
        for j in 1:dim
-            if i!=j
-                dist[i,j]=round(sqrt((coord[i][1]-coord[j][1])^2+(coord[i][2]-coord[j][2])^2),digits=0)
+            if i != j
+                dist[i, j]= round(sqrt((coord[i][1]-coord[j][1])^2+(coord[i][2]-coord[j][2])^2),digits=2)
             end
         end
     end
     return dim, dist
 end
-
-V, Q, customers, coord, demand, time_window = readInstance("C1_2_1 .TXT")
-dim, dist = getDistanceMatrix(coord)
+#
