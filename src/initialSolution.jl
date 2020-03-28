@@ -1,6 +1,6 @@
 #initial solution
 include("prepareData.jl")
-vehicle_numehicle_num, capacity, customers, coord, demand, time_window =  read_instance("C1_2_1.TXT")
+vehicle_num, capacity, customers, coord, demand, time_window =  read_instance("C1_2_1.TXT")
 dim, dist = get_distance_matrix(coord)
 
 
@@ -62,7 +62,6 @@ function find_next(load, cur, curList, curTime, visited)
     sortedList = sort(idxedList, by = first)
     for j in 2:custNum
         idx = sortedList[j][2]
-        # println(idx)
         if visited[idx] == 0 && load + demand[idx] < capacity  && is_feasible_time(curTime, cur, idx)
             return idx
         end
@@ -74,7 +73,6 @@ function is_feasible_time(curTime, cur, nxt)
     if cur == 1
         return true
     end
-    nxtStart = time_window[nxt][1]
     nxtEnd = time_window[nxt][2]
     travel_time = dist[cur, nxt]
     if (curTime + travel_time) <= nxtEnd
@@ -99,24 +97,25 @@ end
 function initSolution()
     Map = route_generator()
     cost = get_cost(Map)
-    println(length(Map))
-    println(cost)
-    println(Map)
+    # println(length(Map))
+    # println(cost)
+    # println(Map)
     return Map
 end
 
 solution = initSolution()
 
-# function check(solution)
+# function solution_checker(solution)
+
 #     for i in 1:length(solution)
 #         sum = 0
 #         for j in solution[i]
 #             sum += demand[j]
 #         end
 #         if sum > capacity
-#             println("sum"*string(sum))
+            # println("exceed capacity")
+#             return False
 #         end
-#         println(sum)
 #     end
 # end
 # check(solution)

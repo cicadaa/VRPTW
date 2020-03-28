@@ -3,13 +3,10 @@ function read_instance(filename)
     file = open(filename)
 
     name = readline(file)
-    # println(name)
     readline(file);readline(file);readline(file)
 
     vehicle = parse.(Int32,split(readline(file)))
-    # println(vehicle)
     vehicle_num, capacity = vehicle[1], vehicle[2] #V no. of vehicle, Q capacity of vehicle
-
     readline(file);readline(file);readline(file);readline(file);
 
     coord = []
