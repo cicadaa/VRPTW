@@ -1,6 +1,6 @@
 #initial solution
 include("prepareData.jl")
-vehicle_num, capacity, customers, coord, demand, time_window =  read_instance("C1_2_1.TXT")
+vehicle_num, capacity, customers, coord, demand, time_window =  read_instance("C1_2_2.TXT")
 dim, dist = get_distance_matrix(coord)
 
 
@@ -103,19 +103,48 @@ function initSolution()
     return Map
 end
 
-solution = initSolution()
+# solution = initSolution()
 
 # function solution_checker(solution)
-
+#     customer_list = zeros(Int32, dim)
+#     customer_list[1] = 1
 #     for i in 1:length(solution)
-#         sum = 0
-#         for j in solution[i]
-#             sum += demand[j]
+#         load = 0
+#         time = 0
+#
+#         for j in 2:length(solution[i])-1
+#             customer = solution[i][j]
+#             cust_pre = solution[i][j-1]
+#             # println(string(customer)*" | "*string(time_window[cust_pre][2]))
+#
+#             time += dist[cust_pre, customer]
+#             load += demand[customer]
+#             customer_list[customer] = 1
+#
+#             if time > time_window[customer][2]
+#                 println("invalid time")
+#                 println(string(customer)*" | "*string(cust_pre))
+#
+#                 println(solution[i])
+#                 return
+#             end
+#
+#             time = max(time, time_window[customer][1]) + time_window[customer][3]
+#
 #         end
-#         if sum > capacity
-            # println("exceed capacity")
-#             return False
+#         if load > capacity
+#             println("invalid capacity")
+#             return
+#
 #         end
 #     end
+#     if sum(customer_list) != dim
+#         # println(customer_list)
+#         # println(sum(customer_list))
+#         println("has unvisit customer")
+#         return false
+#     end
+#     # println("true")
 # end
-# check(solution)
+
+# solution_checker(solution)
