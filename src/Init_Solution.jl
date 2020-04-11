@@ -1,8 +1,4 @@
-#initial solution
-include("prepareData.jl")
-vehicle_num, capacity, customers, coord, demand, time_window =  read_instance("C1_2_1.TXT")
-dim, dist = get_distance_matrix(coord)
-sorted_dist = get_sorted_dist(dist)
+#use init_solution() to generate initial solution
 
 function init_vehicle()
     route = [1]
@@ -94,11 +90,8 @@ function get_cost(Map)
     return totalDist
 end
 
-function initSolution()
+function init_solution()
     Map = route_generator()
     cost = get_cost(Map)
-    # println(length(Map))
-    # println(cost)
-    # println(Map)
     return Map
 end

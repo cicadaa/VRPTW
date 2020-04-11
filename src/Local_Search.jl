@@ -1,5 +1,6 @@
 # include("initialSolution.jl")
-s0 = initSolution()
+
+# s0 = initSolution()
 
 function local_search2(s, runtime, k)
     s_local = copy(s)
@@ -41,7 +42,7 @@ function local_search2(s, runtime, k)
     return s_local
 end
 
-function local_search3(s, runtime, k)
+function local_search3(s, runtime, k) # 2-swap
     s_local = copy(s)
     start_time = time_ns()
     # a = 0
@@ -52,7 +53,7 @@ function local_search3(s, runtime, k)
         candidate = nothing
         i = 1
         while i < 20
-            n = neighbors[rand(1:length(neighbors))]
+            n = neighbors[rand(1:length(neighbors))] #randomly pick one of nearest k neighbors
             loc_n = get_location(n, s_local)
             if loc_n == nothing
                 println("find "*string(n))
@@ -74,23 +75,13 @@ function local_search3(s, runtime, k)
                 end
             end
             i+= 1
-        end
-        if best_loc != nothing && candidate != nothing
-            # println("before :"*string(s_local[loc_a[1]][loc_a[2]])*" | "*string(s_local[best_loc[1]][best_loc[2]]))
-            # println("after :"*string(s_local[loc_a[1]])*" | "*string(s_local[best_loc[1]]))
-            s_local[loc_a[1]][loc_a[2]] = candidate
-            s_local[best_loc[1]][best_loc[2]] = customer_a
-            # println(string(loc_a)*" | "*string(best_loc))
-            # println("after :"*string(s_local[loc_a[1]])*" | "*string(s_local[best_loc[1]]))
-            # println("after :"*string(s_local[loc_a[1]][loc_a[2]])*" | "*string(s_local[best_loc[1]][best_loc[2]]))
+            if best_loc != nothing && candidate != nothing
+                s_local[loc_a[1]][loc_a[2]] = candidate
+                s_local[best_loc[1]][best_loc[2]] = customer_a
+            end
         end
     end
-    # println("-------------")
-    # println("-------------")
-    # println("-------------")
-    # checklen(s_local)
-    # println("local check: "*string(check_solution(s_local)))
-    # @label es
+
     return s_local
 
 end

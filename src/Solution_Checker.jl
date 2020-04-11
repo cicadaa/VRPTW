@@ -1,4 +1,4 @@
-function check_solution(solution)
+function is_valid_solution(solution)
     customer_list = zeros(Int32, dim)
     customer_list[1] = 1
     validity = true
