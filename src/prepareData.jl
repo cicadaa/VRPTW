@@ -41,4 +41,17 @@ function get_distance_matrix(coord)
     end
     return dim, dist
 end
-#
+
+function get_sorted_dist(dist)
+    sorted_dist = []
+    for i in 1:dim
+        route = dist[i, :]
+        idxed_route = []
+        for j in 1:dim
+            append!(idxed_route, [(route[j],j)]) #store cust No. + distance
+        end
+        idxed_route = sort(idxed_route, by = first)
+        push!(sorted_dist, idxed_route)
+    end
+    return sorted_dist
+end

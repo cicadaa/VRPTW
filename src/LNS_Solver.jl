@@ -1,4 +1,7 @@
-include("initialSolution.jl")
+include("Init_Solution.jl")
+include("Local_Search.jl")
+include("Solution_Checker.jl")
+
 
 function destruct(s_cur, k)
     len = size(s_cur)[1]
@@ -17,7 +20,6 @@ function merge_mtx(mtx_origin, idx_set)
             end
         end
     end
-    # println(length(mtx_new))
     return mtx_new
 end
 
@@ -40,14 +42,13 @@ function construct(s_main, s_child)
     for customer in s_child
         s_cur = insert_customer(s_cur, customer)
     end
-    # println(size(s_cur))
     return s_cur
 end
 
 function insert_customer(s_main, customer)
     loc_x, loc_y = get_insert_loc(s_main, customer)
     if loc_x == 0 && loc_y == 0 # when insert location not found
-        route = [1, customer]
+        route = [1, customer, 1]
         push!(s_main, route)
     else
         route = copy(s_main[loc_x])
@@ -88,86 +89,47 @@ end
 
 #==============================================================================#
 
-function lns_solver(runtime, k)
+
+
+function lns_solver(runtime1, runtime2, des_k, search_k)
     s_init = initSolution()
-    s_best = s_cur = copy(s_init)
+    s_best = copy(s_init)
+    s_cur = copy(s_init)
+
     cost_cur = cost_best = get_cost(s_init)
-
     start_time = time_ns()
-    while round((time_ns() - start_time) / 1e9, digits = 3) < runtime
-        if length(s_cur) < 29
-            k = 2
-        end
-        if length(s_cur) < 24
-            k = 3
-        end
 
-        s_main, s_child = destruct(s_cur, k)
-        s_cur = construct(s_main, s_child)
+    while round((time_ns() - start_time) / 1e9, digits = 3) < runtime1
+        s_main, s_child = destruct(s_cur, des_k)
+        s = construct(s_main, s_child)
+        s_cur = s
         cost_cur = get_cost(s_cur)
 
-        if cost_cur <= cost_best && size(s_cur)[1] <= size(s_best)[1]*1.05
-            s_best, cost_best = s_cur, cost_cur
-            println("best cost:" *string(cost_cur) *" | best v:" * string(size(s_cur)[1]))
+        if cost_cur <= cost_best && size(s_cur)[1] <= size(s_best)[1]
+            s_cur = local_search3(s, runtime2, search_k)
+            cost_cur = get_cost(s_cur)
+            if cost_cur < cost_best
+                s_best, cost_best = copy(s_cur), cost_cur
+
+                println("best cost:" *string(cost_cur) *" | best v:" * string(size(s_cur)[1]))
+            end
         else
-            s_cur = s_best
+            s_cur = copy(s_best)
         end
     end
+
+    println("end:)")
     return s_best
-end
-
-
-function check_solution(solution)
-    customer_list = zeros(Int32, dim)
-    customer_list[1] = 1
-
-    for i in 1:length(solution)
-        route = solution[i]
-        for j in 1:length(solution[i])
-            customer_list[solution[i][j]] = 1
-        end
-        if !(is_valid_route(route))
-            println("not valid")
-            @goto escape2
-            return false
-        end
-    end
-    @label escape2
-
-    if sum(customer_list) != dim
-        println("has unvisit customer")
-        return false
-    else
-        println("is valid")
-        return true
-    end
 
 end
 
-function is_valid_route(route)
-    load = 0
-    time = 0
-    valid = true
-    for i in 2:length(route)
-        cust_pre, customer = route[i-1], route[i]
-        load += demand[customer]
-        if time + dist[cust_pre, customer] > time_window[customer][2]
-            valid = false
-            @goto escape
-
-        end
-        arrive_time = max(time + dist[cust_pre, customer], time_window[customer][1])
-        service_time = time_window[customer][3]
-        time = arrive_time + service_time
-    end
-
-    @label escape
-    if load > capacity || valid == false
-        return false
-    else
-        return true
+function checklen(s)
+    for i in 1:length(s)
+        println(string(s[i]))
     end
 end
-solution = lns_solver(60, 1)
 
-check_solution(solution)
+
+solution = lns_solver(120, 1, 2, 20)
+
+println(check_solution(solution))

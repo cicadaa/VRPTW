@@ -126,7 +126,7 @@ function timeConstraints(solution, instance)
         time = 0
         for i=2:length(solution[u])
             if time + distances[solution[u][i-1], solution[u][i]] > due_dates[solution[u][i]]
-                # println(solution[u])
+                println(solution[u])
                 CHECK = false
             end
             time = max(ready_time[solution[u][i]], time + distances[solution[u][i-1], solution[u][i]]) + service_time[solution[u][i]]
@@ -151,7 +151,7 @@ function capacityConstraint(solution, instance)
     return CHECK
 end
 include("LNS_Solver.jl")
-solution = lns_solver(30, 2)
+solution = lns_solver(1, 2)
 
 function testVRPTW(solution, instance)
     test1 = timeConstraints(solution, instance)
@@ -162,6 +162,7 @@ end
 
 Instance = readInstance("C1_2_1.TXT")
 name, nb_vehicules, capacity, coord, demand, ready_time, due_dates, service_time = Instance
-
+# println(length(solution))
+# println(get_cost(solution))
 # solution = initialSolution(Instance)
 testVRPTW(solution, Instance)
