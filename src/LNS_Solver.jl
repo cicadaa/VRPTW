@@ -77,7 +77,7 @@ function alns_solver(runtime1, runtime2, des_k, search_k)
     while round((time_ns() - start_time) / 1e9, digits = 3) < runtime1
 
         s_main, s_child, opt = destruct_factory(s_cur, des_k, w) #destruct_expensive(s_cur, des_k)
-        s = construct(s_main, s_child)
+        s = construct_pertubation(s_main, s_child)
         # s_cur = copy(s)
         if is_acceptable(s, s_best, cost_best)
 
@@ -85,7 +85,7 @@ function alns_solver(runtime1, runtime2, des_k, search_k)
             cost_cur = get_cost(s_cur)
             if cost_cur < cost_best
                 s_best, cost_best = copy(s_cur), cost_cur
-                println(w)
+                # println(w)
                 println("best cost:" *string(cost_cur) *" | best v:" * string(size(s_cur)[1]))
             end
             w = increase_weight(w, opt)
@@ -100,7 +100,7 @@ function alns_solver(runtime1, runtime2, des_k, search_k)
 end
 
 
-solution = alns_solver(300, 5, 2, 30)
+solution = alns_solver(800, 6, 2, 20)
 
 #runtime1, runtime2, des_k, search_k | 300, 1, 3, 20
 println(is_valid_solution(solution))
