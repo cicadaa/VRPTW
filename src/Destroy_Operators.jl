@@ -14,28 +14,28 @@ function destruct_random(s, k)
 end
 
 
-function merge_mtx(mtx_origin, idx_set)
-    mtx_new = []
+function merge_mtx(s, idx_set)
+    s_new = []
     for i in idx_set
-        for customer in mtx_origin[i]
+        for customer in s[i]
             if customer != 1
-                append!(mtx_new, customer)
+                append!(s_new, customer)
             end
         end
     end
-    return mtx_new
+    return s_new
 end
 
 
-function concatenate_mtx(mtx_origin, idx_set)
-    len = length(mtx_origin)
-    mtx_new = []
+function concatenate_mtx(s, idx_set)
+    len = length(s)
+    s_new = []
     for i = 1:len
         if !(i in idx_set)
-            append!(mtx_new, mtx_origin[i, :])
+            append!(s_new, s[i, :])
         end
     end
-    return mtx_new
+    return s_new
 end
 
 
@@ -59,6 +59,10 @@ function get_expensive_routes(routes_costs, k)
     idx_set = zeros(Int64, k)
     i = 1
     while i <= k
+        # if len <= 1
+        #     println("rcosts:" * string(routes_costs))
+        # end
+
         idx = rand(1:len)
         if !(idx in idx_set) && routes_costs[idx] >= ave_cost
             idx_set[i] = idx
@@ -92,22 +96,85 @@ end
 #03 KNN destructor =========================================================================#
 #randomly choose an element destroy the k nearest neighbors
 
+
 function destruct_knn(s, k)
-    centroid = rand(2:dim)
-    s_child = get_neighbors(sorted_dist, centroid, k*5)
-
-    s_main = copy(s)
-    for i in 1:length(s_main)
-        route = s_main[i]
-        filter!(e->e∉s_child, route)
-        # push!(s_main, route)
-    end
+    s_child = get_knn_child(k)
+    s_main = get_knn_main(s, s_child)
     return s_main, s_child, 3
-
 end
 
 
+function get_knn_main(s, s_child)
+    s0 = deepcopy(s)
+    s_main = []
+    for i in 1:length(s0)
+        r = []
+        for j in 1:length(s0[i])
+            c = s0[i][j]
+            if !(c in s_child)
+                append!(r, c)
+            end
+        end
+        if length(r) > 2
+            push!(s_main, r)
+        end
+    end
+    return s_main
+end
 
+function get_knn_child(k)
+    centroid = rand(2:dim)
+    s_child = []
+    ls = sorted_dist[centroid]
+    limit = k * 10
+    for i in 1:limit
+        n = ls[i][2]
+        if n != 1
+            append!(s_child, n)
+        end
+    end
+    return s_child
+end
+
+#04 Pure Random destructor =========================================================================#
+#randomly choose an 15% customers
+
+function destruct_randcust(s, k)
+    s_child = get_knn_child(k)
+    s_main = get_randcust_main(s, s_child)
+    return s_main, s_child, 4
+end
+
+function get_knn_child(k)
+    size = floor(Int, dim*0.15)
+    s_child = []
+    while size > 0
+        c = rand(2:dim)
+        if c != 1 && !(c in s_child)
+            append!(s_child, c)
+            size -= 1
+        end
+    end
+    return s_child
+end
+
+function get_randcust_main(s, s_child)
+    s0 = deepcopy(s)
+    s_main = []
+    for i in 1:length(s0)
+        r = []
+        for j in 1:length(s0[i])
+            c = s0[i][j]
+            if !(c in s_child)
+                append!(r, c)
+            end
+        end
+        if length(r) > 2
+            push!(s_main, r)
+        end
+    end
+    return s_main
+end
 
 #picker =========================================================================#
 
@@ -115,15 +182,24 @@ function destroy_factory(s, k, w)
     opt = get_destroy_operator(w)
     if opt == "destruct_expensive"
         return destruct_expensive(s, k)
+        @goto es
     elseif opt == "destruct_random"
         return destruct_random(s, k)
-    # elseif opt == "destruct_knn"
-    #     return destruct_knn(s, k)
+        @goto es
+
+    elseif opt == "destruct_knn"
+        return destruct_knn(s, k)
+        @goto es
+    elseif opt == "destruct_randcust"
+        return destruct_randcust(s, k)
+        @goto es
+
     end
+    @label es
 end
 
 function get_destroy_operator(w)
-    d_operators = ["destruct_random", "destruct_expensive"]#,"destruct_knn"]
+    d_operators = ["destruct_random", "destruct_expensive","destruct_knn","destruct_randcust"]
     opt = sample(d_operators, Weights(w))
     return opt
 end
@@ -135,16 +211,18 @@ end
 # k = 2
 # w = [0,0,1]
 # w_r = [1,0]
-#
-# s1, s2, opt = destroy_factory(s, k, w)
+
+# destruct_knn(s, k)
+
+# destroy_factory(s, k, w)
 # s3, opr = repair_factory(s1, s2, w_r)
-# # println(typeof(s2))
+# println(typeof(s2))
 # println(s2)
 # println(s1)
 #
 # println(is_valid_solution(s3))
 
-#
+
 
 # w = [1,0,0]
 # s1, s2, opt = destroy_factory(s, k, w)

@@ -1,105 +1,167 @@
 
 #01 Pure Greedy constructor =========================================================================#
 
-function construct_greedy(s_main, s_child)
-    s_cur = copy(s_main)
-    for customer in s_child
-        s_cur = insert_customer(s_cur, customer)
-    end
-    return s_cur, 1
-end
-
-function insert_customer(s_main, customer)
-    loc_x, loc_y = get_insert_loc(s_main, customer)
-    if loc_x == 0 && loc_y == 0 # when insert location not found
-        route = [1, customer, 1]
-        push!(s_main, route)
-    else
-        route = copy(s_main[loc_x])
-        s_main[loc_x] = insert!(route, loc_y, customer)
-    end
-    return s_main
-end
-
-function get_insert_loc(s_main, customer)
-    insertcost_min = 0
-    loc_x, loc_y = 0, 0
-
-    for i = 1:size(s_main)[1]
-        for j = 2:size(s_main[i])[1]
-            route = copy(s_main[i])
-            route_new = insert!(route, j, customer)
-            if is_valid_route(route_new)
-                insertcost = get_insert_cost(route, j, customer)
-                if insertcost_min == 0 || insertcost <= insertcost_min
-                    loc_x, loc_y = i, j
-                    insertcost_min = insertcost
-                end
-            end
-        end
-    end
-
-    return loc_x, loc_y
-end
-
-function get_insert_cost(route, insert_loc, customer)
+# function construct_greedy(s_main, s_child)
+#     s = deepcopy(s_main)
+#     for cust in s_child
+#         s = insert_cust(s, cust)
+#     end
+#     # println(length(s))
+#     return s, 1
+# end
+#
+# function insert_cust(s, cust)
+#     x, y = get_insert_loc(s, cust)
+#     if x == 0 && y == 0 # when insert location not found
+#         route = copy([1, cust, 1])
+#         append!(s, route)
+#     else
+#         route = deepcopy(s[x])
+#         s[x] = insert!(route, y, cust)
+#     end
+#     return s
+# end
+#
+# function get_insert_loc(s, cust)
+#     min = nothing
+#     x, y = 0, 0
+#
+#     for i = 1:length(s)
+#         route = deepcopy(s[i])
+#         for j = 2:length(s[i])
+#             route_new = insert!(route, j, cust)
+#             if is_valid_route(route_new)
+#                 ist_cost = get_insert_cost(route, j, cust)
+#                 if min == nothing || ist_cost <= min
+#                     x, y = i, j
+#                     min = ist_cost
+#                 end
+#             end
+#         end
+#     end
+#
+#     return x, y
+# end
+#
+#
+# function get_insert_loc(s, cust)
+#     min = 0
+#     x, y = 0, 0
+#
+#     for i = 1:length(s)
+#         route = deepcopy(s[i])
+#         for j = 2:length(s[i])
+#             route_new = insert!(route, j, cust)
+#             if is_valid_route(route_new)
+#                 rand_idx = get_rand_inrange(0.8, 1.2)
+#                 ist_cost = get_insert_cost(route, j, cust) * rand_idx
+#                 if min == 0 || ist_cost <= min
+#                     x, y = i, j
+#                     min = ist_cost
+#                 end
+#             end
+#         end
+#     end
+#     return x, y
+# end
+#
+function get_insert_cost(route, insert_loc, cust)
     cust_pre = route[insert_loc-1]
     cust_nxt = route[insert_loc]
     insert_cost =
-        dist[cust_pre, customer] + dist[customer, cust_nxt] -
+        dist[cust_pre, cust] + dist[cust, cust_nxt] -
         dist[cust_pre, cust_nxt]
     return insert_cost
 end
 
-
-#02 Greedy Pertubation constructor==============================================================================#
-function construct_pertubation(s_main, s_child)
-    s_cur = copy(s_main)
-
-    for customer in s_child
-        s_cur = insert_pertubated_customer(s_cur, customer)
+function construct_greedy(s_main, s_child)
+    s = deepcopy(s_main)
+    for cust in s_child
+        s = insert_greedy_cust(s, cust)
     end
-    return s_cur, 2
+    return s, 2
 end
 
-function insert_pertubated_customer(s_main, customer)
-    loc_x, loc_y = get_pertubated_insert_loc(s_main, customer)
-    if loc_x == 0 && loc_y == 0 # when insert location not found
-        route = [1, customer, 1]
+function insert_greedy_cust(s_main, cust)
+    x, y = get_greedy_insert_loc(s_main, cust)
+    if x == 0 && y == 0 # when insert location not found
+        route = [1, cust, 1]
         push!(s_main, route)
     else
-        route = copy(s_main[loc_x])
-        s_main[loc_x] = insert!(route, loc_y, customer)
+        route = deepcopy(s_main[x])
+        s_main[x] = insert!(route, y, cust)
     end
     return s_main
 end
 
 
-function get_pertubated_insert_loc(s_main, customer)
-    insertcost_min = 0
-    loc_x, loc_y = 0, 0
-
-    for i = 1:size(s_main)[1]
-        for j = 2:size(s_main[i])[1]
-            route = copy(s_main[i])
-            route_new = insert!(route, j, customer)
+function get_greedy_insert_loc(s_main, cust)
+    min = nothing
+    x, y = 0, 0
+    for i = 1:length(s_main)
+        for j = 2:length(s_main[i])
+            route = deepcopy(s_main[i])
+            route_new = insert!(route, j, cust)
             if is_valid_route(route_new)
-
-                rand_idx = get_randnum_inrange(0.8, 1.2)
-                insertcost = get_insert_cost(route, j, customer) * rand_idx
-                if insertcost_min == 0 || insertcost <= insertcost_min
-                    loc_x, loc_y = i, j
-                    insertcost_min = insertcost
+                rand_idx = get_rand_inrange(0.8, 1.2)
+                ist_cost = get_insert_cost(route, j, cust) * rand_idx
+                if min == nothing || ist_cost <= min
+                    x, y = i, j
+                    min = ist_cost
                 end
             end
         end
     end
-
-    return loc_x, loc_y
+    return x, y
 end
 
 
-function get_randnum_inrange(a::Float64, b::Float64)
+
+
+#02 Greedy Pertubation constructor==============================================================================#
+function construct_pertubation(s_main, s_child)
+    s = deepcopy(s_main)
+    for cust in s_child
+        s = insert_pertubated_cust(s, cust)
+    end
+    return s, 2
+end
+
+function insert_pertubated_cust(s_main, cust)
+    x, y = get_pertubated_insert_loc(s_main, cust)
+    if x == 0 && y == 0 # when insert location not found
+        route = [1, cust, 1]
+        push!(s_main, route)
+    else
+        route = deepcopy(s_main[x])
+        s_main[x] = insert!(route, y, cust)
+    end
+    return s_main
+end
+
+
+function get_pertubated_insert_loc(s_main, cust)
+    min = nothing
+    x, y = 0, 0
+    for i = 1:length(s_main)
+        for j = 2:length(s_main[i])
+            route = deepcopy(s_main[i])
+            route_new = insert!(route, j, cust)
+            if is_valid_route(route_new)
+                rand_idx = get_rand_inrange(0.8, 1.2)
+                ist_cost = get_insert_cost(route, j, cust) * rand_idx
+                if min == nothing || ist_cost <= min
+                    x, y = i, j
+                    min = ist_cost
+                end
+            end
+        end
+    end
+    return x, y
+end
+
+
+function get_rand_inrange(a::Float64, b::Float64)
     scale = 1 / (b - a)
     mid = (a+b)/2
     init = rand(1)[1]

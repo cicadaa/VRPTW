@@ -4,6 +4,12 @@ function is_valid_solution(solution)
     validity = true
     for i in 1:length(solution)
         route = solution[i]
+        if length(route) < 1
+            println("eroute |"*string(i))
+            println("eroute len |"*string(solution[2]))
+            println("eroute len |"*string(solution[3]))
+
+        end
         if !(is_valid_route(route))
             validity = false
             @goto escape2
@@ -16,8 +22,17 @@ function is_valid_solution(solution)
     if sum(customer_list) != dim
         validity = false
     end
+    c_ls = []
+    for c in 1:length(customer_list)
+        if customer_list[c] != 1
+            append!(c_ls, c)
+        end
+    end
+    # println("empty item : "*string(c_ls))
+
 
     @label escape2
+    println(validity)
     return validity
 end
 
@@ -44,6 +59,10 @@ function valid_route_time(route)
 end
 
 function valid_route_cap(route)
+    if length(route) < 1
+
+        println("empty route")
+    end
     validity = true
     load = sum(demand[x] for x in route)
     if load > capacity
