@@ -6,7 +6,7 @@ function construct_greedy(s_main, s_child)
     for customer in s_child
         s_cur = insert_customer(s_cur, customer)
     end
-    return s_cur
+    return s_cur, 1
 end
 
 function insert_customer(s_main, customer)
@@ -59,7 +59,7 @@ function construct_pertubation(s_main, s_child)
     for customer in s_child
         s_cur = insert_pertubated_customer(s_cur, customer)
     end
-    return s_cur
+    return s_cur, 2
 end
 
 function insert_pertubated_customer(s_main, customer)
@@ -112,19 +112,17 @@ end
 
 #**picker==============================================================================#
 
-function destruct_factory(s, k, w)
-    opt = get_operator(w)
-    if opt == "destruct_expensive"
-        # println("destruct_expensive")
-        return destruct_expensive(s, k)
-    elseif opt == "destruct_random"
-        # println("destruct_random")
-        return destruct_random(s, k)
+function repair_factory(s_main, s_child, w)
+    opt = get_repair_operator(w)
+    if opt == "construct_greedy"
+        return construct_greedy(s_main, s_child)
+    elseif opt == "construct_pertubation"
+        return construct_pertubation(s_main, s_child)
     end
 end
 
-function get_operator(w)
-    operators = ["destruct_random", "destruct_expensive"]
-    opt = sample(operators, Weights(w))
+function get_repair_operator(w)
+    r_operators = ["construct_greedy", "construct_pertubation"]
+    opt = sample(r_operators, Weights(w))
     return opt
 end

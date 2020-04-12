@@ -79,6 +79,7 @@ function get_multiroutes_cost(s)
     return routes_costs
 end
 
+
 function get_route_cost(route)
     cost = 0
     for i in 1:length(route)-1
@@ -88,32 +89,72 @@ function get_route_cost(route)
 end
 
 
-#KNN destructor =========================================================================#
+#03 KNN destructor =========================================================================#
 #randomly choose an element destroy the k nearest neighbors
+
 function destruct_knn(s, k)
+    centroid = rand(2:dim)
+    s_child = get_neighbors(sorted_dist, centroid, k*5)
+
+    s_main = copy(s)
+    for i in 1:length(s_main)
+        route = s_main[i]
+        filter!(e->e∉s_child, route)
+        # push!(s_main, route)
+    end
+    return s_main, s_child, 3
+
 end
+
+
+
 
 #picker =========================================================================#
 
-function destruct_factory(s, k, w)
-    opt = get_operator(w)
+function destroy_factory(s, k, w)
+    opt = get_destroy_operator(w)
     if opt == "destruct_expensive"
-        # println("destruct_expensive")
         return destruct_expensive(s, k)
     elseif opt == "destruct_random"
-        # println("destruct_random")
         return destruct_random(s, k)
+    # elseif opt == "destruct_knn"
+    #     return destruct_knn(s, k)
     end
 end
 
-function get_operator(w)
-    operators = ["destruct_random", "destruct_expensive"]
-    opt = sample(operators, Weights(w))
+function get_destroy_operator(w)
+    d_operators = ["destruct_random", "destruct_expensive"]#,"destruct_knn"]
+    opt = sample(d_operators, Weights(w))
     return opt
 end
-#
+
+
+# # #
+# include("Solution_Checker.jl")
 # s = init_solution()
 # k = 2
-# w = [0.6, 0.5]
-# c, m, opt = destruct_factory(s, k, w)
+# w = [0,0,1]
+# w_r = [1,0]
 #
+# s1, s2, opt = destroy_factory(s, k, w)
+# s3, opr = repair_factory(s1, s2, w_r)
+# # println(typeof(s2))
+# println(s2)
+# println(s1)
+#
+# println(is_valid_solution(s3))
+
+#
+
+# w = [1,0,0]
+# s1, s2, opt = destroy_factory(s, k, w)
+# println(typeof(s2))
+# # println(s2)
+# println(opt)
+# for i in 1:length(s1)
+#     for c in s1[i]
+#         if c in s2
+#             println("not vali")
+#         end
+#     end
+# end
