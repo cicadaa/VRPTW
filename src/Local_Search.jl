@@ -1,164 +1,57 @@
-# include("initialSolution.jl")
+# include("Init_Solution.jl")
+#
+# s0 = init_solution()
 
-# s0 = initSolution()
 
-#01 search knn==============================================================================#
-
-function local_search3(s, runtime, k) # 2-swap
-    s_local = deepcopy(s)
+#local search 2-opt ==============================================================================#
+function local_search_2opt(s, runtime)
+    s_best = deepcopy(s)
     start_time = time_ns()
-    # a = 0
     while round((time_ns() - start_time) / 1e9, digits = 3) < runtime
-        customer_a, loc_a = get_random_customer(s_local)
-        neighbors = get_neighbors(sorted_dist, customer_a, 50)
-        best_loc = nothing
-        candidate = nothing
-        i = 1
-        while i < 10
-            n = neighbors[rand(1:length(neighbors))] #randomly pick one of nearest k neighbors
-
-            loc_n = get_location(n, s_local)
-            if loc_n == nothing
-                println("find "*string(n))
-                checklen(s_local)
-                # @goto es
+        cust_a = rand(2:dim)
+        cust_b = rand(2:dim)
+        s_new, validity, loc_a, loc_b= swap_customer(s_best, cust_a, cust_b)
+        if validity == true
+            origin_cost = get_route_cost(s_best[loc_a]) + get_route_cost(s_best[loc_b])
+            new_cost = get_route_cost(s_new[loc_a]) + get_route_cost(s_new[loc_b])
+            if new_cost < origin_cost
+                s_best = deepcopy(s_new)
             end
-            println(s_local)
+        end
+    end
+    return s_best
+end
 
-            route_a = copy(s_local[loc_a[1]])
-            route_n = copy(s_local[loc_n[1]])
-            new_route_a = get_swap_route(route_a, n, loc_a[2])
-            new_route_n = get_swap_route(route_n, customer_a, loc_n[2])
-            if is_feasible_swap(new_route_n, new_route_a)
-                new_cost = get_route_cost(new_route_a) + get_route_cost(new_route_n)
-                cost = get_route_cost(route_a) + get_route_cost(route_n)
-                rand_num = get_rand_inrange(0.9, 1.2)
-                if new_cost < rand_num*cost
-                    candidate = n
-                    best_loc = loc_n
-                    # @goto es
+
+function swap_customer(s, a, b)
+    s_tmp = deepcopy(s)
+    validity = true
+    loc_a = loc_b = nothing
+    for i in 1:length(s_tmp)
+        for j in 2:length(s_tmp[i])-1
+            if s[i][j] == a
+                s_tmp[i][j] = b
+                loc_a = i
+
+                if !is_valid_route(s_tmp[i])
+                    validity = false
+                    @goto es
                 end
             end
-            i+= 1
-            if best_loc != nothing && candidate != nothing
-                s_local[loc_a[1]][loc_a[2]] = candidate
-                s_local[best_loc[1]][best_loc[2]] = customer_a
+            if s[i][j] == b
+                s_tmp[i][j] = a
+                loc_b = i
+
+                if !is_valid_route(s_tmp[i])
+                    validity = false
+                    @goto es
+                end
             end
         end
     end
-
-    return s_local
-
-end
-
-function get_rand_inrange(a::Float64, b::Float64)
-    scale = 1 / (b - a)
-    mid = (a+b)/2
-    init = rand(1)[1]
-    randnum = (init-0.5)/scale  + mid
-    return randnum
+    @label es
+    return s_tmp, validity, loc_a, loc_b
 end
 
 
-function get_route_cost(route)
-    cost = 0
-    for i in 1:length(route)-1
-        cost += dist[route[i], route[i+1]]
-    end
-    return cost
-end
-
-
-function get_location(n, s)
-    for i in 1:length(s)
-        for j in 1:length(s[i])
-            if s[i][j] == n
-                return (i, j)
-            end
-        end
-    end
-end
-
-
-function get_neighbors(sorted_dist, customer, k)
-    idxed_route = sorted_dist[customer]
-    neighbors = zeros(Int32, k)
-    i = 1
-    j = 1
-    while i <= k
-        if idxed_route[j][2] != 1
-            neighbors[i] = idxed_route[j][2]
-            i += 1
-        end
-        j+=1
-    end
-    return neighbors
-end
-
-
-#==============================================================================#
-
-
-# function local_search(s, runtime)
-#     s_local = s
-#     start_time = time_ns()
-#     while round((time_ns() - start_time) / 1e9, digits = 3) < runtime
-#         customer_a, loc_a = get_random_customer(s_local)
-#         customer_b, loc_b = get_random_customer(s_local)
-#
-#         new_route_a = get_swap_route(s_local, customer_b, loc_a)
-#         new_route_b = get_swap_route(s_local, customer_a, loc_b)
-#
-#         if is_feasible_swap(new_route_a, new_route_b)
-#             new_cost = get_cost(new_route_a) + get_cost(new_route_b)
-#             cost = get_cost(s_local[loc_a[1]]) + get_cost(s_local[loc_b[1]])
-#
-#             if cost > new_cost
-#                 s_local[loc_a[1]][loc_a[2]] = customer_a
-#                 s_local[loc_b[1]][loc_b[2]] = customer_b
-#                 println("cost:" *string(get_cost(s_local)) *" | best v:" * string(size(s_local)[1]))
-#
-#             end
-#         end
-#     end
-#     return s_local
-# end
-# function get_swap_cost(s, loc_a, loc_b, customer_a, customer_b)
-#     new_route_a = copy(s[loc_a[1]])
-#     new_route_b = copy(s[loc_b[1]])
-#
-#     new_route_a[loc_a[2]] = customer_b
-#     new_route_b[loc_b[2]] = customer_a
-#
-#     new_cost_a = get_cost(new_route_a)
-#     new_cost_b = get_cost(new_route_b)
-#
-#     return new_cost_a + new_cost_b
-# end
-
-function get_swap_route(route, new_customer, loc)
-    new_route = copy(route)
-    new_route[loc] = new_customer
-    return new_route
-end
-
-function is_feasible_swap(route_1, route_2)
-    valid = false
-    if is_valid_route(route_1) && is_valid_route(route_2)
-        valid = true
-    end
-    return valid
-end
-
-function get_random_customer(s)
-    i = rand(1:length(s))
-    j = rand(2:length(s[i])-1)
-    customer = s[i][j]
-    return customer, (i,j)
-end
-
-function checklen(s)
-    for i in 1:length(s)
-        println(string(s[i]))
-    end
-end
+local_search_2opt(s0, 2)

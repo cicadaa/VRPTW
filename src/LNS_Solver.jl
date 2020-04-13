@@ -47,7 +47,7 @@ end
 #ALNS solver ===============================================================
 
 
-function alns_solver(runtime1, runtime2, des_k, search_k)
+function alns_solver(runtime1, runtime2, des_k)
     s_best = init_solution()
     s_c = deepcopy(s_best)
     cost_best = get_cost(s_best)
@@ -65,10 +65,10 @@ function alns_solver(runtime1, runtime2, des_k, search_k)
         # println("best cost:" *string(cost) *" | best v:" * string(length(s)))
 
         if is_acceptable(s, s_best, cost_best)
-            # s_local = local_search3(s, runtime2, search_k)
-
-            if cost < cost_best
-                s_best, cost_best = deepcopy(s), cost
+            s_local = local_search_2opt(s, runtime2)
+            cost_local = get_cost(s_local)
+            if cost_local < cost_best
+                s_best, cost_best = deepcopy(s_local), cost
                 println("best cost:" *string(cost) *" | best v:" * string(length(s)))
             end
             w_d = increase_weight(w_d, opt_d)
@@ -88,18 +88,13 @@ function alns_solver(runtime1, runtime2, des_k, search_k)
 end
 
 
-solution = alns_solver(500, 1, 3, 30)
+solution = alns_solver(500, 1, 3)
 
 #=
 records
 01
 runtime1, runtime2, des_k, search_k | 500, 6, 3, 30
 best cost:4269.46 | best v:22
-
-02
-runtime 160(no local search)
-destruct random routes -- destroy 3 random routes
-destruct knn -- destroy 8% of cutomer
 
 
 *03
@@ -108,6 +103,18 @@ runtime 500(no local search)
 destruct random routes -- destroy 3 random routes
 destruct knn -- destroy 5% of cutomers
 
+*04
+best cost:3131.5 | best v:21
+runtime 400(no local search)
+destruct random routes -- destroy 3 random routes
+destruct knn -- destroy 4% of cutomers
 
+
+*05
+ best cost:2883.0696 | best v:20
+ solution = alns_solver(800, 1, 3, 30)
+ destruct random routes -- destroy 3 random routes
+ destruct knn -- destroy 4% of cutomers
 =#
 println(is_valid_solution(solution))
+# println(solution)
