@@ -221,18 +221,3 @@ end
 # println(s1)
 #
 # println(is_valid_solution(s3))
-
-
-
-# w = [1,0,0]
-# s1, s2, opt = destroy_factory(s, k, w)
-# println(typeof(s2))
-# # println(s2)
-# println(opt)
-# for i in 1:length(s1)
-#     for c in s1[i]
-#         if c in s2
-#             println("not vali")
-#         end
-#     end
-# end

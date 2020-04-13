@@ -62,7 +62,6 @@ function alns_solver(runtime1, runtime2, des_k)
         s_main, s_child, opt_d = destroy_factory(s_best, des_k, w_d)
         s, opt_r = repair_factory(s_main, s_child, w_r)
         cost = get_cost(s)
-        # println("best cost:" *string(cost) *" | best v:" * string(length(s)))
 
         if is_acceptable(s, s_best, cost_best)
             s_local = local_search_2opt(s, runtime2)

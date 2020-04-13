@@ -54,4 +54,4 @@ function swap_customer(s, a, b)
 end
 
 
-local_search_2opt(s0, 2)
+# local_search_2opt(s0, 2)
