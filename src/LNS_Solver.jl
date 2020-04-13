@@ -1,5 +1,6 @@
 import Random
 
+
 include("Prepare_Data.jl")
 include("Init_Solution.jl")
 include("Local_Search.jl")
@@ -7,12 +8,16 @@ include("Solution_Checker.jl")
 include("Destroy_Operators.jl")
 include("Repair_Operators.jl")
 
+
+#prepare data ==================================================================
 vehicle_num, capacity, customers, coord, demand, time_window =  read_instance("C1_2_1.TXT")
 dim, dist = get_distance_matrix(coord)
 sorted_dist = get_sorted_dist(dist)
-d_operators = ["destruct_random", "destruct_expensive", "destruct_knn","destruct_randcust"]
+d_operators = ["destruct_random", "destruct_expensive", "destruct_knn", "destruct_randcust"]
 r_operators = ["construct_greedy", "construct_pertubation"]
 
+
+#criteria manage ===============================================================
 
 function is_acceptable(s_cur, s_best, cost_best)
     cost_cur = get_cost(s_cur)
@@ -27,46 +32,20 @@ end
 
 function increase_weight(w, opt)
     w_max = maximum(w)
-    w[opt] = w[opt] + (0.08*w_max)
+    w[opt] = w[opt] + (0.1*w_max)
     return w
 end
 
 
-function decrease_weight(w, opt)
+function decrease_weight(w, opt::Int64)
     w_min = minimum(w)
-    w[opt] = w[opt] - (0.0001*w_min)
+    w[opt] = 0.25*w[opt] +0.75 *w_min
     return w
 end
 
-#==============================================================================#
 
-# function lns_solver(runtime1, runtime2, des_k, search_k)
-#     s_init = init_solution()
-#     s_best = deepcopy(s_init)
-#     s_cur = deepcopy(s_init)
-#
-#     cost_cur = cost_best = get_cost(s_init)
-#     start_time = time_ns()
-#
-#     while round((time_ns() - start_time) / 1e9, digits = 3) < runtime1
-#
-#         s_main, s_child = destruct_expensive(s_cur, des_k)
-#         s = construct(s_main, s_child)
-#         s_cur = deepcopy(s)
-#         if is_acceptable(s_cur, s_best, cost_best)#cost_cur <= cost_best && size(s_cur)[1] <= size(s_best)[1]
-#             s_cur = local_search3(s, runtime2, search_k)
-#             cost_cur = get_cost(s_cur)
-#             if cost_cur < cost_best
-#                 s_best, cost_best = deepcopy(s_cur), cost_cur
-#                 println("best cost:" *string(cost_cur) *" | best v:" * string(size(s_cur)[1]))
-#             end
-#         else
-#             s_cur = deepcopy(s_best)
-#         end
-#     end
-#     println("end:)")
-#     return s_best
-# end
+#ALNS solver ===============================================================
+
 
 function alns_solver(runtime1, runtime2, des_k, search_k)
     s_best = init_solution()
@@ -74,21 +53,19 @@ function alns_solver(runtime1, runtime2, des_k, search_k)
     cost_best = get_cost(s_best)
 
     w_d = ones(Float32, length(d_operators))
+    # w_d = [1,2,1,3]
     w_r = ones(Float32, length(r_operators))
 
     start_time = time_ns()
     l = 0
     while round((time_ns() - start_time) / 1e9, digits = 3) < runtime1
-        s_main, s_child, opt_d = destroy_factory(s_c, des_k, w_d)
+        s_main, s_child, opt_d = destroy_factory(s_best, des_k, w_d)
         s, opt_r = repair_factory(s_main, s_child, w_r)
         cost = get_cost(s)
         # println("best cost:" *string(cost) *" | best v:" * string(length(s)))
 
-        # println("s:" *string(s) )
-
         if is_acceptable(s, s_best, cost_best)
-            s = local_search3(s, runtime2, search_k)
-            s_c = deepcopy(s)
+            # s_local = local_search3(s, runtime2, search_k)
 
             if cost < cost_best
                 s_best, cost_best = deepcopy(s), cost
@@ -111,12 +88,26 @@ function alns_solver(runtime1, runtime2, des_k, search_k)
 end
 
 
-solution = alns_solver(600, 2, 3, 10)
+solution = alns_solver(500, 1, 3, 30)
 
-#runtime1, runtime2, des_k, search_k | 160, 2, 3, 30
-#record
-#01
-#500, 6, 3, 30
-#best cost:4269.46 | best v:22
-#3
+#=
+records
+01
+runtime1, runtime2, des_k, search_k | 500, 6, 3, 30
+best cost:4269.46 | best v:22
+
+02
+runtime 160(no local search)
+destruct random routes -- destroy 3 random routes
+destruct knn -- destroy 8% of cutomer
+
+
+*03
+result --- best cost:3225.9495 | best v:21
+runtime 500(no local search)
+destruct random routes -- destroy 3 random routes
+destruct knn -- destroy 5% of cutomers
+
+
+=#
 println(is_valid_solution(solution))

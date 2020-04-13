@@ -146,7 +146,7 @@ function destruct_randcust(s, k)
 end
 
 function get_knn_child(k)
-    size = floor(Int, dim*0.15)
+    size = floor(Int, dim*0.05)
     s_child = []
     while size > 0
         c = rand(2:dim)
