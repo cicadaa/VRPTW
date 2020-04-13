@@ -1,5 +1,5 @@
 import Random
-
+import GraphRecipes, Plots
 
 include("Prepare_Data.jl")
 include("Init_Solution.jl")
@@ -7,9 +7,8 @@ include("Local_Search.jl")
 include("Solution_Checker.jl")
 include("Destroy_Operators.jl")
 include("Repair_Operators.jl")
+include("Visualisation.jl")
 
-
-#prepare data ==================================================================
 vehicle_num, capacity, customers, coord, demand, time_window =  read_instance("C1_2_1.TXT")
 dim, dist = get_distance_matrix(coord)
 sorted_dist = get_sorted_dist(dist)
@@ -87,7 +86,7 @@ function alns_solver(runtime1, runtime2, des_k)
 end
 
 
-solution = alns_solver(500, 1, 3)
+solution = alns_solver(300, 1, 3)
 
 #=
 records
@@ -117,3 +116,4 @@ destruct knn -- destroy 4% of cutomers
 =#
 println(is_valid_solution(solution))
 # println(solution)
+draw_customers(solution, coord)

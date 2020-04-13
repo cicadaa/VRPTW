@@ -1,8 +1,7 @@
 include("Init_Solution.jl")
 using StatsBase
-
-#01 Random destructor =========================================================================#
-# destroy random k routes
+#01 Random destructor ==========================================================
+#destroy random k routes
 
 function destruct_random(s, k)
     len = length(s)
@@ -39,8 +38,8 @@ function concatenate_mtx(s, idx_set)
 end
 
 
-#02 Expensive destructor =========================================================================#
-# destroy the most expensive route with random range
+#=02 Expensive destructor ======================================================
+destroy the most expensive route with random range=#
 
 function destruct_expensive(s, k)
 
@@ -213,11 +212,3 @@ end
 # w_r = [1,0]
 
 # destruct_knn(s, k)
-
-# destroy_factory(s, k, w)
-# s3, opr = repair_factory(s1, s2, w_r)
-# println(typeof(s2))
-# println(s2)
-# println(s1)
-#
-# println(is_valid_solution(s3))
