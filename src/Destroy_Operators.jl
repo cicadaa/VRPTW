@@ -3,9 +3,9 @@ using StatsBase
 #01 Random destructor ==========================================================
 #destroy random k routes
 
-function destruct_random(s, k)
+function destruct_random(s, d_ran_routes)
     len = length(s)
-    idx_set = rand(1:len, k)
+    idx_set = rand(1:len, d_ran_routes)
     s_child = merge_mtx(s, idx_set)
     s_main = concatenate_mtx(s, idx_set)
 
@@ -41,10 +41,10 @@ end
 #=02 Expensive destructor ======================================================
 destroy the most expensive route with random range=#
 
-function destruct_expensive(s, k)
+function destruct_expensive(s,  d_exp_routes)
 
     routes_costs = get_multiroutes_cost(s)
-    idx_set = get_expensive_routes(routes_costs, 1)
+    idx_set = get_expensive_routes(routes_costs,  d_exp_routes)
 
     s_child = merge_mtx(s, idx_set)
     s_main = concatenate_mtx(s, idx_set)
@@ -52,16 +52,12 @@ function destruct_expensive(s, k)
 end
 
 
-function get_expensive_routes(routes_costs, k)
+function get_expensive_routes(routes_costs,  d_exp_routes)
     len = length(routes_costs)
     ave_cost = sum(routes_costs)/len
-    idx_set = zeros(Int64, k)
+    idx_set = zeros(Int64,  d_exp_routes)
     i = 1
-    while i <= k
-        # if len <= 1
-        #     println("rcosts:" * string(routes_costs))
-        # end
-
+    while i <=  d_exp_routes
         idx = rand(1:len)
         if !(idx in idx_set) && routes_costs[idx] >= ave_cost
             idx_set[i] = idx
@@ -96,8 +92,8 @@ end
 #randomly choose an element destroy the k nearest neighbors
 
 
-function destruct_knn(s, k)
-    s_child = get_knn_child(k)
+function destruct_knn(s, d_knn)
+    s_child = get_knn_child(d_knn)
     s_main = get_knn_main(s, s_child)
     return s_main, s_child, 3
 end
@@ -121,12 +117,11 @@ function get_knn_main(s, s_child)
     return s_main
 end
 
-function get_knn_child(k)
+function get_knn_child(d_knn)
     centroid = rand(2:dim)
     s_child = []
     ls = sorted_dist[centroid]
-    limit = k * 10
-    for i in 1:limit
+    for i in 1:d_knn
         n = ls[i][2]
         if n != 1
             append!(s_child, n)
@@ -138,14 +133,14 @@ end
 #04 Pure Random destructor =========================================================================#
 #randomly choose an 15% customers
 
-function destruct_randcust(s, k)
-    s_child = get_knn_child(k)
+function destruct_randcust(s, d_ratio)
+    s_child = get_randcust_child(d_ratio)
     s_main = get_randcust_main(s, s_child)
     return s_main, s_child, 4
 end
 
-function get_knn_child(k)
-    size = floor(Int, dim*0.04)
+function get_randcust_child(d_ratio)
+    size = floor(Int, dim * d_ratio)
     s_child = []
     while size > 0
         c = rand(2:dim)
@@ -177,20 +172,19 @@ end
 
 #picker =========================================================================#
 
-function destroy_factory(s, k, w)
+function destroy_factory(s, w, d_ran_routes, d_ratio, d_knn, d_exp_routes)
     opt = get_destroy_operator(w)
     if opt == "destruct_expensive"
-        return destruct_expensive(s, k)
+        return destruct_expensive(s, d_exp_routes)
         @goto es
     elseif opt == "destruct_random"
-        return destruct_random(s, k)
+        return destruct_random(s, d_ran_routes)
         @goto es
-
     elseif opt == "destruct_knn"
-        return destruct_knn(s, k)
+        return destruct_knn(s, d_knn)
         @goto es
     elseif opt == "destruct_randcust"
-        return destruct_randcust(s, k)
+        return destruct_randcust(s, d_ratio)
         @goto es
 
     end
