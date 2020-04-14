@@ -18,10 +18,21 @@ r_operators = ["construct_greedy", "construct_pertubation"]
 
 #criteria manage ===============================================================
 
-function is_acceptable(s_cur, s_best, cost_best)
-    cost_cur = get_cost(s_cur)
-    rand_num = 1#get_rand_inrange(0.98, 1.2)
-    if cost_cur < cost_best*rand_num && length(s_cur) <= length(s_best)
+# function is_acceptable(s_cur, s_best, cost_best)
+#     cost_cur = get_cost(s_cur)
+#     rand_num = 1#get_rand_inrange(0.98, 1.2)
+#     if cost_cur < cost_best*rand_num && length(s_cur) <= length(s_best)
+#         return true
+#     else
+#         return false
+#     end
+# end
+
+function is_acceptable(cost, cost_best, s, s_best, T)
+    bar = exp(-abs(cost - cost_best) / T)
+    rand_set = rand(Float32, 1)
+    acpt_prob = rand_set[1]
+    if (cost < cost_best && length(s) <= length(s_best)) || acpt_prob < bar
         return true
     else
         return false
@@ -49,7 +60,7 @@ end
 #ALNS solver ===============================================================
 
 
-function alns_solver(g_runtime, l_runtime, d_ran_routes, d_ratio, d_knn, k, lambda)
+function alns_solver(g_runtime, l_runtime, d_ran_routes, d_ratio, d_knn, k, lambda, alpha, T)
     s_best = init_solution()
     s_c = deepcopy(s_best)
     cost_best = get_cost(s_best)
@@ -66,10 +77,11 @@ function alns_solver(g_runtime, l_runtime, d_ran_routes, d_ratio, d_knn, k, lamb
         s, opt_r = repair_factory(s_main, s_child, w_r)
         cost = get_cost(s)
 
-        if is_acceptable(s, s_best, cost_best)
+        # if accept(cost, cost_best, T)
+        if is_acceptable(cost, cost_best, s, s_best, T)
+
             score_idx = 2
             # s_local = local_search_2opt(s, l_runtime)
-
             # cost_local = get_cost(s_local)
             if cost < cost_best
                 score_idx = 1
@@ -77,9 +89,12 @@ function alns_solver(g_runtime, l_runtime, d_ran_routes, d_ratio, d_knn, k, lamb
                 println("best cost:" *string(cost) *" | best v:" * string(length(s)))
             end
         end
+        T = T * alpha
+
         w_r = update_weight(w_r, opt_r, score_idx, lambda)
         w_d = update_weight(w_d, opt_d, score_idx, lambda)
         l += 1
+
         push!(We, w_d)
 
     end
@@ -91,7 +106,7 @@ function alns_solver(g_runtime, l_runtime, d_ran_routes, d_ratio, d_knn, k, lamb
 end
 
 
-solution, y, l = alns_solver(300, 1, 3, 0.004, 20, 1, 0.7)
+solution, y, l = alns_solver(300, 1, 3, 0.004, 20, 1, 0.7, 0.99, 200)
 # solution = alns_solver(g_runtime, l_runtime, d_ran_routes, d_ratio, d_knn,  d_exp_routes, lambda)
 #=
 records
