@@ -1,4 +1,5 @@
 import Random
+using Plots
 
 include("Prepare_Data.jl")
 include("Init_Solution.jl")
@@ -30,10 +31,11 @@ end
 #weight manage ===============================================================
 
 function update_weight(w, opt, score_idx, lambda)
-    score_set = [12,1,0.9]
+    w0 = copy(w)
+    score_set = [10,5,0.5]
     score = score_set[score_idx]
-    w[opt] = lambda * w[opt] + (1 - lambda)*score
-    return w
+    w0[opt] = round(lambda * w0[opt] + (1 - lambda)*score, digits=2)
+    return w0
 end
 
 
@@ -51,7 +53,7 @@ function alns_solver(g_runtime, l_runtime, d_ran_routes, d_ratio, d_knn, k, lamb
     s_best = init_solution()
     s_c = deepcopy(s_best)
     cost_best = get_cost(s_best)
-
+    We = []
     w_d = ones(Float32, length(d_operators))
     # w_d = [1,2,1,3]
     w_r = ones(Float32, length(r_operators))
@@ -66,55 +68,62 @@ function alns_solver(g_runtime, l_runtime, d_ran_routes, d_ratio, d_knn, k, lamb
 
         if is_acceptable(s, s_best, cost_best)
             score_idx = 2
-            s_local = local_search_2opt(s, l_runtime)
-            cost_local = get_cost(s_local)
-            if cost_local < cost_best
+            # s_local = local_search_2opt(s, l_runtime)
+
+            # cost_local = get_cost(s_local)
+            if cost < cost_best
                 score_idx = 1
-                s_best, cost_best = deepcopy(s_local), cost
+                s_best, cost_best = deepcopy(s), cost
                 println("best cost:" *string(cost) *" | best v:" * string(length(s)))
             end
         end
-        update_weight(w_r, opt_r, score_idx, lambda)
-        update_weight(w_d, opt_d, score_idx, lambda)
-
+        w_r = update_weight(w_r, opt_r, score_idx, lambda)
+        w_d = update_weight(w_d, opt_d, score_idx, lambda)
         l += 1
+        push!(We, w_d)
+
     end
     println(w_d)
     println(w_r)
     println("end:)")
-    return s_best
+    return s_best, We, l
 
 end
 
 
-solution = alns_solver(60, 0.5, 3, 0.015, 30, 2, 0.8)
+solution, y, l = alns_solver(300, 1, 3, 0.004, 20, 1, 0.7)
 # solution = alns_solver(g_runtime, l_runtime, d_ran_routes, d_ratio, d_knn,  d_exp_routes, lambda)
 #=
 records
-01
-g_runtime, l_runtime, d_ran_routes, search_k | 500, 6, 3, 30
-best cost:4269.46 | best v:22
 
+*06
+best cost:2760.5696 | best v:20
+solution, y = alns_solver(300, 1, 3, 0.004, 20, 1, 0.7)
+g_runtime, l_runtime, d_ran_routes, d_ratio, d_knn,  d_exp_routes, lambda)
 
-*03
-result --- best cost:3225.9495 | best v:21
-runtime 500(no local search)
-destruct random routes -- destroy 3 random routes
-destruct knn -- destroy 5% of cutomers
+*07
+solution, y, l = alns_solver(300, 1, 3, 0.015, 30, 2, 0.95)
+g_runtime, l_runtime, d_ran_routes, d_ratio, d_knn,  d_exp_routes, lambda)
+w0[opt] = round(((lambda+1) * w0[opt] + (1 - lambda)*score)/2, digits=2)
 
-*04
-best cost:3131.5 | best v:21
-runtime 400(no local search)
-destruct random routes -- destroy 3 random routes
-destruct knn -- destroy 4% of cutomers
-
-
-*05
- best cost:2883.0696 | best v:20
- solution = alns_solver(800, 1, 3, 30)
- destruct random routes -- destroy 3 random routes
- destruct knn -- destroy 4% of cutomers
 =#
+
+
 println(is_valid_solution(solution))
 # println(solution)
-# draw_customers(solution, coord)
+# print
+# remove_random_route = zeros(Float32, l)
+# remove_kexpensive_route = zeros(Float32, l)
+# remove_knn = zeros(Float32, l)
+# remove_ran_cust = zeros(Float32, l)
+#
+# for i in 1:l
+#     # println(y[i])
+#     remove_random_route[i] = y[i][1]
+#     remove_kexpensive_route[i] = y[i][2]
+#     remove_knn[i] = y[i][3]
+#     remove_knn[i] = y[i][4]
+# end
+# x = 1:l
+# println("here")
+# plot(1:l, [remove_random_route, remove_kexpensive_route, remove_knn, remove_ran_cust])

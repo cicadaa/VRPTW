@@ -150,8 +150,9 @@ function capacityConstraint(solution, instance)
     end
     return CHECK
 end
-include("LNS_Solver.jl")
-solution = lns_solver(1, 2)
+include("ALNS_Solver.jl")
+solution, y = alns_solver(60, 1, 3, 0.004, 20, 1, 0.7)
+
 
 function testVRPTW(solution, instance)
     test1 = timeConstraints(solution, instance)
