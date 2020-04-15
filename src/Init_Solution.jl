@@ -9,7 +9,7 @@ function init_vehicle()
 end
 
 function init_setting(dim)
-    visited = zeros(Int32,dim)
+    visited = zeros(Int32, dim)
     visited[1] = 1
     Map = []
     count_c = 1 #count customers
@@ -24,11 +24,11 @@ function route_generator(data)
     time_window, demand = data["time"], data["demand"]
 
     visited, Map, count_c, count_v = init_setting(dim)
-    while count_c < dim-1  && count_v < V
+    while count_c < dim - 1 && count_v < V
         route, load, next, cur_time = init_vehicle()
         while load < Q
             cur = next
-            next = find_next(data, load, cur, dist[cur, : ], cur_time, visited)
+            next = find_next(data, load, cur, dist[cur, :], cur_time, visited)
             if next == 1
                 push!(route, next)
                 push!(Map, route)
@@ -42,13 +42,13 @@ function route_generator(data)
                 travel_time = dist[cur, next]
                 service_time = time_window[next][3]
                 start_time = time_window[next][1]
-                cur_time = max((cur_time + travel_time), start_time) + service_time
+                cur_time =
+                    max((cur_time + travel_time), start_time) + service_time
             end
         end
     end
     return Map
 end
-
 
 
 function find_next(data, load, cur, curList, cur_time, visited)
@@ -57,14 +57,16 @@ function find_next(data, load, cur, curList, cur_time, visited)
 
     custNum = length(curList)
     idxedList = []
-    for i in 1:custNum
-        append!(idxedList, [(curList[i],i)]) #store cust No. + distance
+    for i = 1:custNum
+        append!(idxedList, [(curList[i], i)]) #store cust No. + distance
     end
 
     sortedList = sort(idxedList, by = first)
-    for j in 2:custNum
+    for j = 2:custNum
         idx = sortedList[j][2]
-        if visited[idx] == 0 && load + demand[idx] < Q  && is_feasible_time(data, cur_time, cur, idx)
+        if visited[idx] == 0 &&
+           load + demand[idx] < Q &&
+           is_feasible_time(data, cur_time, cur, idx)
             return idx
         end
     end
@@ -89,10 +91,10 @@ end
 function get_cost(data, Map)
     dist = data["dist"]
     totalDist = 0
-    for i in 1:length(Map)
+    for i = 1:length(Map)
         routeDist = 0
         route = Map[i]
-        for j in 1:length(route)-1
+        for j = 1:length(route)-1
             routeDist += dist[route[j], route[j+1]]
         end
         totalDist += routeDist

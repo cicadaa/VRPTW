@@ -4,7 +4,7 @@ function is_valid_solution(data, solution)
     customer_list = zeros(Int32, dim)
     customer_list[1] = 1
     validity = true
-    for i in 1:length(solution)
+    for i = 1:length(solution)
         route = solution[i]
         if !(is_valid_route(data, route))
             validity = false
@@ -19,7 +19,7 @@ function is_valid_solution(data, solution)
         validity = false
     end
     c_ls = []
-    for c in 1:length(customer_list)
+    for c = 1:length(customer_list)
         if customer_list[c] != 1
             append!(c_ls, c)
         end
@@ -40,7 +40,7 @@ function valid_route_time(data, route)
 
     time = 0
     validity = true
-    for i=2:length(route)
+    for i = 2:length(route)
         travel_time = copy(dist[route[i-1], route[i]])
         end_time = time_window[route[i]][2]
         if time + travel_time > end_time

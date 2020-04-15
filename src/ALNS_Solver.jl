@@ -9,6 +9,12 @@ include("Destroy_Operators.jl")
 include("Repair_Operators.jl")
 # include("Visualisation.jl")
 
+# vehicle_num, capacity, customers, coord, demand, time_window =  read_instance("C1_2_1.TXT")
+# dim, dist = get_distance_matrix(coord)
+# sorted_dist = get_sorted_dist(dist)
+# d_opts = ["destruct_random", "destruct_expensive", "destruct_knn", "destruct_randcust"]
+# r_opts = ["construct_greedy", "construct_pertubation"]
+
 
 #criteria manage ===============================================================
 
@@ -54,8 +60,8 @@ end
 #ALNS solver ===============================================================
 
 
-function alns_solver(file,g_runtime,l_runtime,d_ran_routes,d_ratio,d_knn,k,lambda,alpha,T)
-    data = prepare_data(file)
+function alns_solver(seed, instance, g_runtime, l_runtime, d_ran_routes, d_ratio, d_knn, d_exp_routes, lambda, alpha, T)
+    data = prepare_data(instance)
     d_opts, r_opts = opt_kit()
     w_d, w_r = init_weight(length(d_opts), length(r_opts))
 
@@ -69,7 +75,7 @@ function alns_solver(file,g_runtime,l_runtime,d_ran_routes,d_ratio,d_knn,k,lambd
     while round((time_ns() - start_time) / 1e9, digits = 3) < g_runtime
         score_idx = 3
         s_main, s_child, opt_d =
-            destroy_factory(data, s_best, w_d, d_ran_routes, d_ratio, d_knn, k)
+            destroy_factory(data, s_best, w_d, d_ran_routes, d_ratio, d_knn, d_exp_routes)
         s, opt_r = repair_factory(data, s_main, s_child, w_r)
         cost = get_cost(data, s)
 
@@ -96,11 +102,11 @@ function alns_solver(file,g_runtime,l_runtime,d_ran_routes,d_ratio,d_knn,k,lambd
     # println(w_d)
     # println(w_r)
     # println(is_valid_solution(data, s_best))
-    return s_best
+    return cost_best
 
 end
 
-solution = alns_solver("C1_2_1.TXT", 5, 1, 3, 0.004, 20, 1, 0.7, 0.99, 100)
+# solution = alns_solver("C1_2_1.TXT", 5, 1, 3, 0.004, 20, 1, 0.7, 0.99, 100)
 # solution = alns_solver(g_runtime, l_runtime, d_ran_routes, d_ratio, d_knn,  d_exp_routes, lambda)
 #=
 records

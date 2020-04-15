@@ -44,7 +44,7 @@ destroy the most expensive route with random range=#
 function destruct_expensive(data, s, d_exp_routes)
 
     routes_costs = get_multiroutes_cost(data, s)
-    idx_set = get_expensive_routes(routes_costs,  d_exp_routes)
+    idx_set = get_expensive_routes(routes_costs, d_exp_routes)
 
     s_child = merge_mtx(s, idx_set)
     s_main = concatenate_mtx(s, idx_set)
@@ -52,12 +52,12 @@ function destruct_expensive(data, s, d_exp_routes)
 end
 
 
-function get_expensive_routes(routes_costs,  d_exp_routes)
+function get_expensive_routes(routes_costs, d_exp_routes)
     len = length(routes_costs)
-    ave_cost = sum(routes_costs)/len
-    idx_set = zeros(Int64,  d_exp_routes)
+    ave_cost = sum(routes_costs) / len
+    idx_set = zeros(Int64, d_exp_routes)
     i = 1
-    while i <=  d_exp_routes
+    while i <= d_exp_routes
         idx = rand(1:len)
         if !(idx in idx_set) && routes_costs[idx] >= ave_cost
             idx_set[i] = idx
@@ -72,7 +72,7 @@ end
 function get_multiroutes_cost(data, s)
     len = length(s)
     routes_costs = zeros(Float32, len)
-    for i in 1:len
+    for i = 1:len
         routes_costs[i] = get_route_cost(data, s[i])
     end
     return routes_costs
@@ -82,7 +82,7 @@ end
 function get_route_cost(data, route)
     dist = data["dist"]
     cost = 0
-    for i in 1:length(route)-1
+    for i = 1:length(route)-1
         cost += dist[route[i], route[i+1]]
     end
     return cost
@@ -103,9 +103,9 @@ end
 function get_knn_main(s, s_child)
     s0 = deepcopy(s)
     s_main = []
-    for i in 1:length(s0)
+    for i = 1:length(s0)
         r = []
-        for j in 1:length(s0[i])
+        for j = 1:length(s0[i])
             c = s0[i][j]
             if !(c in s_child)
                 append!(r, c)
@@ -125,7 +125,7 @@ function get_knn_child(data, d_knn)
     centroid = rand(2:dim)
     s_child = []
     ls = sorted_dist[centroid]
-    for i in 1:d_knn
+    for i = 1:d_knn
         n = ls[i][2]
         if n != 1
             append!(s_child, n)
@@ -160,9 +160,9 @@ end
 function get_randcust_main(s, s_child)
     s0 = deepcopy(s)
     s_main = []
-    for i in 1:length(s0)
+    for i = 1:length(s0)
         r = []
-        for j in 1:length(s0[i])
+        for j = 1:length(s0[i])
             c = s0[i][j]
             if !(c in s_child)
                 append!(r, c)
@@ -197,17 +197,12 @@ function destroy_factory(data, s, w, d_ran_routes, d_ratio, d_knn, d_exp_routes)
 end
 
 function get_destroy_operator(w)
-    d_operators = ["destruct_random", "destruct_expensive","destruct_knn","destruct_randcust"]
+    d_operators = [
+        "destruct_random",
+        "destruct_expensive",
+        "destruct_knn",
+        "destruct_randcust",
+    ]
     opt = sample(d_operators, Weights(w))
     return opt
 end
-
-
-# # #
-# include("Solution_Checker.jl")
-# s = init_solution()
-# k = 2
-# w = [0,0,1]
-# w_r = [1,0]
-
-# destruct_knn(s, k)
