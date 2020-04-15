@@ -42,7 +42,7 @@ function get_distance_matrix(coord)
     return dim, dist
 end
 
-function get_sorted_dist(dist)
+function get_sorted_dist(dist, dim)
     sorted_dist = []
     for i in 1:dim
         route = dist[i, :]
@@ -54,4 +54,25 @@ function get_sorted_dist(dist)
         push!(sorted_dist, idxed_route)
     end
     return sorted_dist
+end
+
+function prepare_data(file)
+
+    vehicle_num, capacity, customers, coord, demand, time_window = read_instance(file)
+    dim, dist = get_distance_matrix(coord)
+    sorted_dist = get_sorted_dist(dist, dim)
+    data = Dict()
+    data["V"] = vehicle_num
+    data["Q"] = capacity
+    data["customers"] = customers
+    data["coord"] = coord
+    data["D"] = demand
+    data["time"] = time_window
+    data["demand"] = demand
+
+    data["dim"] = dim
+    data["dist"] = dist
+    data["sorted_dist"] = sorted_dist
+
+    return data
 end

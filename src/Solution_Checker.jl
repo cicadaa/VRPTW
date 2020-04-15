@@ -1,16 +1,12 @@
-function is_valid_solution(solution)
+function is_valid_solution(data, solution)
+    dim = data["dim"]
+
     customer_list = zeros(Int32, dim)
     customer_list[1] = 1
     validity = true
     for i in 1:length(solution)
         route = solution[i]
-        if length(route) < 1
-            println("eroute |"*string(i))
-            println("eroute len |"*string(solution[2]))
-            println("eroute len |"*string(solution[3]))
-
-        end
-        if !(is_valid_route(route))
+        if !(is_valid_route(data, route))
             validity = false
             @goto escape2
         end
@@ -28,23 +24,24 @@ function is_valid_solution(solution)
             append!(c_ls, c)
         end
     end
-    # println("empty item : "*string(c_ls))
 
 
     @label escape2
-    println(validity)
     return validity
 end
 
-function is_valid_route(route)
-    return valid_route_time(route) && valid_route_cap(route)
+function is_valid_route(data, route)
+    return valid_route_time(data, route) && valid_route_cap(data, route)
 end
 
-function valid_route_time(route)
+function valid_route_time(data, route)
+    time_window = data["time"]
+    dist = data["dist"]
+
     time = 0
     validity = true
     for i=2:length(route)
-        travel_time = dist[route[i-1], route[i]]
+        travel_time = copy(dist[route[i-1], route[i]])
         end_time = time_window[route[i]][2]
         if time + travel_time > end_time
             validity = false
@@ -58,14 +55,15 @@ function valid_route_time(route)
     return validity
 end
 
-function valid_route_cap(route)
+function valid_route_cap(data, route)
+    Q = data["Q"]
+    demand = data["demand"]
     if length(route) < 1
-
         println("empty route")
     end
     validity = true
     load = sum(demand[x] for x in route)
-    if load > capacity
+    if load > Q
         validity = false
     end
     return validity

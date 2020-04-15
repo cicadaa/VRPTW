@@ -1,7 +1,7 @@
 import AlgoTuner
 using AlgoTuner
 
-include("TSP_Simulated_ Annealing.jl")
+include("ALNS_Solver.jl")
 
 function getBestKnown()
     instanceSet = ["berlin52_7542.tsp","ch150_6528.tsp"]

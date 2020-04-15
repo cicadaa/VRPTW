@@ -3,7 +3,7 @@ using StatsBase
 #01 Random destructor ==========================================================
 #destroy random k routes
 
-function destruct_random(s, d_ran_routes)
+function destruct_random(data, s, d_ran_routes)
     len = length(s)
     idx_set = rand(1:len, d_ran_routes)
     s_child = merge_mtx(s, idx_set)
@@ -41,9 +41,9 @@ end
 #=02 Expensive destructor ======================================================
 destroy the most expensive route with random range=#
 
-function destruct_expensive(s,  d_exp_routes)
+function destruct_expensive(data, s, d_exp_routes)
 
-    routes_costs = get_multiroutes_cost(s)
+    routes_costs = get_multiroutes_cost(data, s)
     idx_set = get_expensive_routes(routes_costs,  d_exp_routes)
 
     s_child = merge_mtx(s, idx_set)
@@ -69,17 +69,18 @@ function get_expensive_routes(routes_costs,  d_exp_routes)
 end
 
 
-function get_multiroutes_cost(s)
+function get_multiroutes_cost(data, s)
     len = length(s)
     routes_costs = zeros(Float32, len)
     for i in 1:len
-        routes_costs[i] = get_route_cost(s[i])
+        routes_costs[i] = get_route_cost(data, s[i])
     end
     return routes_costs
 end
 
 
-function get_route_cost(route)
+function get_route_cost(data, route)
+    dist = data["dist"]
     cost = 0
     for i in 1:length(route)-1
         cost += dist[route[i], route[i+1]]
@@ -92,8 +93,8 @@ end
 #randomly choose an element destroy the k nearest neighbors
 
 
-function destruct_knn(s, d_knn)
-    s_child = get_knn_child(d_knn)
+function destruct_knn(data, s, d_knn)
+    s_child = get_knn_child(data, d_knn)
     s_main = get_knn_main(s, s_child)
     return s_main, s_child, 3
 end
@@ -117,7 +118,10 @@ function get_knn_main(s, s_child)
     return s_main
 end
 
-function get_knn_child(d_knn)
+function get_knn_child(data, d_knn)
+    dim = data["dim"]
+    sorted_dist = data["sorted_dist"]
+
     centroid = rand(2:dim)
     s_child = []
     ls = sorted_dist[centroid]
@@ -133,13 +137,14 @@ end
 #04 Pure Random destructor =========================================================================#
 #randomly choose an 15% customers
 
-function destruct_randcust(s, d_ratio)
-    s_child = get_randcust_child(d_ratio)
+function destruct_randcust(data, s, d_ratio)
+    s_child = get_randcust_child(data, d_ratio)
     s_main = get_randcust_main(s, s_child)
     return s_main, s_child, 4
 end
 
-function get_randcust_child(d_ratio)
+function get_randcust_child(data, d_ratio)
+    dim = data["dim"]
     size = floor(Int, dim * d_ratio)
     s_child = []
     while size > 0
@@ -172,19 +177,19 @@ end
 
 #picker =========================================================================#
 
-function destroy_factory(s, w, d_ran_routes, d_ratio, d_knn, d_exp_routes)
+function destroy_factory(data, s, w, d_ran_routes, d_ratio, d_knn, d_exp_routes)
     opt = get_destroy_operator(w)
     if opt == "destruct_expensive"
-        return destruct_expensive(s, d_exp_routes)
+        return destruct_expensive(data, s, d_exp_routes)
         @goto es
     elseif opt == "destruct_random"
-        return destruct_random(s, d_ran_routes)
+        return destruct_random(data, s, d_ran_routes)
         @goto es
     elseif opt == "destruct_knn"
-        return destruct_knn(s, d_knn)
+        return destruct_knn(data, s, d_knn)
         @goto es
     elseif opt == "destruct_randcust"
-        return destruct_randcust(s, d_ratio)
+        return destruct_randcust(data, s, d_ratio)
         @goto es
 
     end
