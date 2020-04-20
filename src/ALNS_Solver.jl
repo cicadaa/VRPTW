@@ -7,13 +7,7 @@ include("Local_Search.jl")
 include("Solution_Checker.jl")
 include("Destroy_Operators.jl")
 include("Repair_Operators.jl")
-# include("Visualisation.jl")
-
-# vehicle_num, capacity, customers, coord, demand, time_window =  read_instance("C1_2_1.TXT")
-# dim, dist = get_distance_matrix(coord)
-# sorted_dist = get_sorted_dist(dist)
-# d_opts = ["destruct_random", "destruct_expensive", "destruct_knn", "destruct_randcust"]
-# r_opts = ["construct_greedy", "construct_pertubation"]
+include("Visualisation.jl")
 
 
 #criteria manage ===============================================================
@@ -28,6 +22,7 @@ function is_acceptable(cost, cost_best, s, s_best, T)
         return false
     end
 end
+
 
 #weight manage  ===============================================================
 
@@ -45,7 +40,9 @@ function update_weight(w, opt, score_idx, lambda)
     return w0
 end
 
-#operator manage  ===============================================================
+
+#operator manage  ==============================================================
+
 function opt_kit()
     d_opts = [
         "destruct_random",
@@ -57,16 +54,15 @@ function opt_kit()
     return d_opts, r_opts
 end
 
+
 #ALNS solver ===============================================================
 
-
-function alns_solver(seed, instance, g_runtime, l_runtime, d_ran_routes, d_ratio, d_knn, d_exp_routes, lambda, alpha, T)
+function alns_solver(seed, instance, g_runtime, l_runtime, d_ran_routes, d_ratio, d_knn, d_exp_routes)
     data = prepare_data(instance)
     d_opts, r_opts = opt_kit()
     w_d, w_r = init_weight(length(d_opts), length(r_opts))
-
+    lambda, alpha, T = 0.9, 0.98, 300
     s_best = init_solution(data)
-    s_c = deepcopy(s_best)
     cost_best = get_cost(data, s_best)
 
 
@@ -99,45 +95,25 @@ function alns_solver(seed, instance, g_runtime, l_runtime, d_ran_routes, d_ratio
         w_r = update_weight(w_r, opt_r, score_idx, lambda)
         w_d = update_weight(w_d, opt_d, score_idx, lambda)
     end
-    # println(w_d)
-    # println(w_r)
-    # println(is_valid_solution(data, s_best))
+
+
+    println(is_valid_solution(data, s_best))
     return cost_best
 
 end
 
-# solution = alns_solver("C1_2_1.TXT", 5, 1, 3, 0.004, 20, 1, 0.7, 0.99, 100)
-# solution = alns_solver(g_runtime, l_runtime, d_ran_routes, d_ratio, d_knn,  d_exp_routes, lambda)
-#=
-records
+solution = alns_solver(50,"R1_2_6.TXT", 10, 2, 3, 0.015, 20, 2)
 
-*06
+
+#=Records
+
+*01
 best cost:2760.5696 | best v:20
 solution, y = alns_solver(300, 1, 3, 0.004, 20, 1, 0.7)
 g_runtime, l_runtime, d_ran_routes, d_ratio, d_knn,  d_exp_routes, lambda)
 
-*07
-solution, y, l = alns_solver(300, 1, 3, 0.015, 30, 2, 0.95)
-g_runtime, l_runtime, d_ran_routes, d_ratio, d_knn,  d_exp_routes, lambda)
-w0[opt] = round(((lambda+1) * w0[opt] + (1 - lambda)*score)/2, digits=2)
+*02
+best cost:2765.5293 | best v:20
+solution = alns_solver(123,"C1_2_1.TXT", 300, 2, 3, 0.015, 20, 2)
 
 =#
-
-
-# println(solution)
-# print
-# remove_random_route = zeros(Float32, l)
-# remove_kexpensive_route = zeros(Float32, l)
-# remove_knn = zeros(Float32, l)
-# remove_ran_cust = zeros(Float32, l)
-#
-# for i in 1:l
-#     # println(y[i])
-#     remove_random_route[i] = y[i][1]
-#     remove_kexpensive_route[i] = y[i][2]
-#     remove_knn[i] = y[i][3]
-#     remove_knn[i] = y[i][4]
-# end
-# x = 1:l
-# println("here")
-# plot(1:l, [remove_random_route, remove_kexpensive_route, remove_knn, remove_ran_cust])

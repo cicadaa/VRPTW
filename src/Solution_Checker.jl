@@ -7,6 +7,7 @@ function is_valid_solution(data, solution)
     for i = 1:length(solution)
         route = solution[i]
         if !(is_valid_route(data, route))
+            println("not valid route")
             validity = false
             @goto escape2
         end
@@ -16,14 +17,19 @@ function is_valid_solution(data, solution)
     end
 
     if sum(customer_list) != dim
+        println("unvisited cust")
+
         validity = false
     end
     c_ls = []
     for c = 1:length(customer_list)
         if customer_list[c] != 1
             append!(c_ls, c)
+
         end
     end
+    println(c_ls)
+
 
 
     @label escape2

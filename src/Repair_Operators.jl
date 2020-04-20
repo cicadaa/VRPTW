@@ -102,3 +102,20 @@ function get_rand_inrange(a::Float64, b::Float64)
     randnum = (init - 0.5) / scale + mid
     return randnum
 end
+
+#**picker==============================================================================#
+
+function repair_factory(data, s_main, s_child, w)
+    opt = get_repair_operator(w)
+    if opt == "construct_greedy"
+        return construct_greedy(data, s_main, s_child)
+    elseif opt == "construct_pertubation"
+        return construct_pertubation(data, s_main, s_child)
+    end
+end
+
+function get_repair_operator(w)
+    r_operators = ["construct_greedy", "construct_pertubation"]
+    opt = sample(r_operators, Weights(w))
+    return opt
+end

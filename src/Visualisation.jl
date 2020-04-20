@@ -85,3 +85,21 @@ draw_customers(s, coord)
 # end
 # preview()
 # println(size(coord))
+
+
+# Graph of weight changes
+# remove_random_route = zeros(Float32, l)
+# remove_kexpensive_route = zeros(Float32, l)
+# remove_knn = zeros(Float32, l)
+# remove_ran_cust = zeros(Float32, l)
+#
+# for i in 1:l
+#     # println(y[i])
+#     remove_random_route[i] = y[i][1]
+#     remove_kexpensive_route[i] = y[i][2]
+#     remove_knn[i] = y[i][3]
+#     remove_knn[i] = y[i][4]
+# end
+# x = 1:l
+# println("here")
+# plot(1:l, [remove_random_route, remove_kexpensive_route, remove_knn, remove_ran_cust])

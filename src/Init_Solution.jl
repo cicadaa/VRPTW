@@ -1,92 +1,63 @@
 #use init_solution() to generate initial solution
 
-function init_vehicle()
-    route = [1]
-    load = 0
-    next = 1
-    cur_time = 0
-    return route, load, next, cur_time
-end
 
-function init_setting(dim)
+
+##find an initial solution
+function init_solution(data)
+    V = data["V"]
+    Q = data["Q"]
+    demand = data["demand"]
+    time_window = data["time"]
+    dim = data["dim"]
+    dist= data["dist"]
     visited = zeros(Int32, dim)
     visited[1] = 1
-    Map = []
-    count_c = 1 #count customers
-    count_v = 0 #count used vehicles
+    solution = []
+    while sum(visited) < dim
+        road = [1]
+        consumed = 0
+        time = 0
+        while length(road) <=1 || road[end] != 1
+            pre = road[end]
+            nxt = find_next_city(data, pre, visited, time, consumed)
+            push!(road, nxt)
+            visited[nxt] = true
+            consumed += demand[nxt]
+            time = max(time_window[nxt][1], time + dist[pre, nxt]) + time_window[nxt][3]
+        end
 
-    return visited, Map, count_c, count_v
+        push!(solution, road)
+    end
+    return solution
 end
 
-function route_generator(data)
-    V, Q = data["V"], data["Q"]
-    dim, dist = data["dim"], data["dist"]
-    time_window, demand = data["time"], data["demand"]
+function find_next_city(data, pre_city, visited, time, consumed)
+    V = data["V"]
+    Q = data["Q"]
+    demand = data["demand"]
+    time_window = data["time"]
+    dim = data["dim"]
+    dist= data["dist"]
 
-    visited, Map, count_c, count_v = init_setting(dim)
-    while count_c < dim - 1 && count_v < V
-        route, load, next, cur_time = init_vehicle()
-        while load < Q
-            cur = next
-            next = find_next(data, load, cur, dist[cur, :], cur_time, visited)
-            if next == 1
-                push!(route, next)
-                push!(Map, route)
-                count_v += 1
-                load = Q
-            else
-                push!(route, next)
-                visited[next] = 1
-                load += demand[next]
-                count_c += 1
-                travel_time = dist[cur, next]
-                service_time = time_window[next][3]
-                start_time = time_window[next][1]
-                cur_time =
-                    max((cur_time + travel_time), start_time) + service_time
+    min_dist = nothing
+    min_city = 0
+
+    for i=1:dim
+        load = demand[i]+consumed
+        if visited[i] == 0 && load <= Q && time + dist[pre_city, i] <= time_window[i][2] && time + dist[pre_city, i] + time_window[i][3] + dist[i, 1] <= time_window[1][2]
+            if min_dist == nothing || dist[pre_city, i] < min_dist
+                min_dist = dist[pre_city, i]
+                min_city = i
             end
         end
     end
-    return Map
+    if min_dist == nothing
+        return 1
+    else
+        return min_city
+    end
 end
 
-
-function find_next(data, load, cur, curList, cur_time, visited)
-    demand = data["demand"]
-    Q = data["Q"]
-
-    custNum = length(curList)
-    idxedList = []
-    for i = 1:custNum
-        append!(idxedList, [(curList[i], i)]) #store cust No. + distance
-    end
-
-    sortedList = sort(idxedList, by = first)
-    for j = 2:custNum
-        idx = sortedList[j][2]
-        if visited[idx] == 0 &&
-           load + demand[idx] < Q &&
-           is_feasible_time(data, cur_time, cur, idx)
-            return idx
-        end
-    end
-    return 1 #if all customer visited
-end
-
-function is_feasible_time(data, cur_time, cur, nxt)
-    time_window = data["time"]
-    dist = data["dist"]
-
-    if cur == 1
-        return true
-    end
-    nxtEnd = time_window[nxt][2]
-    travel_time = dist[cur, nxt]
-    if (cur_time + travel_time) <= nxtEnd
-        return true
-    end
-    return false
-end
 
 function get_cost(data, Map)
     dist = data["dist"]
@@ -100,9 +71,4 @@ function get_cost(data, Map)
         totalDist += routeDist
     end
     return totalDist
-end
-
-function init_solution(data)
-    Map = route_generator(data)
-    return Map
 end
