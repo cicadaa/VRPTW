@@ -28,7 +28,7 @@ function is_valid_solution(data, solution)
 
         end
     end
-    println(c_ls)
+    # println(c_ls)
 
 
 

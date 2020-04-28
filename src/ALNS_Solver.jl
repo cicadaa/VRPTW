@@ -1,5 +1,5 @@
 import Random
-using Plots
+# using Plots
 
 include("Prepare_Data.jl")
 include("Init_Solution.jl")
@@ -7,11 +7,11 @@ include("Local_Search.jl")
 include("Solution_Checker.jl")
 include("Destroy_Operators.jl")
 include("Repair_Operators.jl")
-include("Visualisation.jl")
+# include("Visualisation.jl")
 
 
 #criteria manage ===============================================================
-
+#
 function is_acceptable(cost, cost_best, s, s_best, T)
     bar = exp(-abs(cost - cost_best) / T)
     rand_set = rand(Float32, 1)
@@ -91,19 +91,19 @@ function alns_solver(seed, instance, g_runtime, l_runtime, d_ran_routes, d_ratio
                 # )
             end
         end
+        # l += 1
         T = T * alpha
         w_r = update_weight(w_r, opt_r, score_idx, lambda)
         w_d = update_weight(w_d, opt_d, score_idx, lambda)
     end
 
-
-    println(is_valid_solution(data, s_best))
+    # println(l)
+    # println(is_valid_solution(data, s_best))
     return cost_best
 
 end
 
-solution = alns_solver(50,"R1_2_6.TXT", 10, 2, 3, 0.015, 20, 2)
-
+# solution = alns_solver(50,"R1_2_6.TXT", 10, 2, 3, 0.015, 20, 2)
 
 #=Records
 

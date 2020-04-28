@@ -1,8 +1,5 @@
 #use init_solution() to generate initial solution
 
-
-
-##find an initial solution
 function init_solution(data)
     V = data["V"]
     Q = data["Q"]

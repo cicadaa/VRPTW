@@ -3,24 +3,30 @@ using Colors
 include("Init_Solution.jl")
 include("Prepare_Data.jl")
 
-s = init_solution()
+data = prepare_data("C1_2_1.TXT")
+
+s = init_solution(data)
 vehicle_num, capacity, customers, coord, demand, time_window =  read_instance("C1_2_1.TXT")
 dim, dist = get_distance_matrix(coord)
 
 function draw_customers(s, coord)
-    Drawing(4000,4000)
+    Drawing(6000,3000)
     background("white")
     cols = collect(Colors.color_names)
     origin()
 
     scale = 20
     for c in coord
-        sethue("skyblue")
-        circle((c[1]-70)*scale,(c[2]-70)*scale,20,:fill)
+        # sethue("skyblue")
+        sethue("black")
+
+        circle((c[1]-70)*scale,(c[2]-70)*scale,15,:fill)
     end
     setline(8)
     for i in 1:length(s)
-        randomcolor()
+        # randomcolor()
+        sethue("grey")
+
         # k = rand(1:length(s))
         # sethue(cols[k][1])
         for j in 1:length(s[i])-1
@@ -35,7 +41,7 @@ function draw_customers(s, coord)
         end
     end
 
-    sethue("blue")
+    sethue("black")
     circle(0,0,60,:fill)
 
     finish()
