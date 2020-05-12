@@ -4,16 +4,17 @@
 
 
 #local search 2-opt ==============================================================================#
-function local_search_2opt(s, runtime)
+function local_search_2opt(data, s, runtime)
+    dim = data["dim"]
     s_best = deepcopy(s)
     start_time = time_ns()
     while round((time_ns() - start_time) / 1e9, digits = 3) < runtime
         cust_a = rand(2:dim)
         cust_b = rand(2:dim)
-        s_new, validity, loc_a, loc_b= swap_customer(s_best, cust_a, cust_b)
+        s_new, validity, loc_a, loc_b= swap_customer(data, s_best, cust_a, cust_b)
         if validity == true
-            origin_cost = get_route_cost(s_best[loc_a]) + get_route_cost(s_best[loc_b])
-            new_cost = get_route_cost(s_new[loc_a]) + get_route_cost(s_new[loc_b])
+            origin_cost = get_route_cost(data, s_best[loc_a]) + get_route_cost(data, s_best[loc_b])
+            new_cost = get_route_cost(data, s_new[loc_a]) + get_route_cost(data, s_new[loc_b])
             if new_cost < origin_cost
                 s_best = deepcopy(s_new)
             end
@@ -23,7 +24,7 @@ function local_search_2opt(s, runtime)
 end
 
 
-function swap_customer(s, a, b)
+function swap_customer(data, s, a, b)
     s_tmp = deepcopy(s)
     validity = true
     loc_a = loc_b = nothing
@@ -33,7 +34,7 @@ function swap_customer(s, a, b)
                 s_tmp[i][j] = b
                 loc_a = i
 
-                if !is_valid_route(s_tmp[i])
+                if !is_valid_route(data, s_tmp[i])
                     validity = false
                     @goto es
                 end
@@ -42,7 +43,7 @@ function swap_customer(s, a, b)
                 s_tmp[i][j] = a
                 loc_b = i
 
-                if !is_valid_route(s_tmp[i])
+                if !is_valid_route(data, s_tmp[i])
                     validity = false
                     @goto es
                 end

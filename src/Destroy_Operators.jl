@@ -178,6 +178,11 @@ end
 #picker =========================================================================#
 
 function destroy_factory(data, s, w, d_ran_routes, d_ratio, d_knn, d_exp_routes)
+    Q = data["Q"]
+    amp_factor = 1
+    if Q > 200
+        amp_factor = 30
+    end
     opt = get_destroy_operator(w)
     if opt == "destruct_expensive"
         return destruct_expensive(data, s, d_exp_routes)
@@ -189,7 +194,7 @@ function destroy_factory(data, s, w, d_ran_routes, d_ratio, d_knn, d_exp_routes)
         return destruct_knn(data, s, d_knn)
         @goto es
     elseif opt == "destruct_randcust"
-        return destruct_randcust(data, s, d_ratio)
+        return destruct_randcust(data, s, d_ratio*amp_factor)
         @goto es
 
     end
