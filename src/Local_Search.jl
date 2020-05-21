@@ -1,6 +1,3 @@
-# include("Init_Solution.jl")
-#
-# s0 = init_solution()
 
 
 #local search 2-opt ==============================================================================#
@@ -53,6 +50,3 @@ function swap_customer(data, s, a, b)
     @label es
     return s_tmp, validity, loc_a, loc_b
 end
-
-
-# local_search_2opt(s0, 2)

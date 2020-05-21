@@ -177,11 +177,13 @@ end
 
 #picker =========================================================================#
 
-function destroy_factory(data, s, w, d_ran_routes, d_ratio, d_knn, d_exp_routes)
+function destroy_factory(data, s, w)
+    d_ran_routes, d_ratio, d_knn, d_exp_routes = 3, 0.005, 20, 1
     Q = data["Q"]
     amp_factor = 1
     if Q > 200
         amp_factor = 30
+        d_knn = 40
     end
     opt = get_destroy_operator(w)
     if opt == "destruct_expensive"
